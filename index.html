@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Меблі та Техніка — Звягель</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;700&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+(function(){
+  try{
+    var f=localStorage.getItem('mb_filters'); if(f) window._savedFilters=JSON.parse(f);
+    window._savedSearch=localStorage.getItem('mb_search')||'';
+    window._savedSort=localStorage.getItem('mb_sort')||'newest';
+    window._savedScroll=parseInt(localStorage.getItem('mb_scroll')||'0');
+  }catch(e){}
+})();
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig={
+    apiKey:"AIzaSyDrtZhY-HP9HPoTZupa5VqkxW6I7_0W9Rg",
+    authDomain:"shina-zvyagel.firebaseapp.com",
+    projectId:"shina-zvyagel",
+    storageBucket:"shina-zvyagel.firebasestorage.app",
+    messagingSenderId:"295644049393",
+    appId:"1:295644049393:web:d16468f32bbe95ec809e50"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db=firebase.firestore();
+  const auth=firebase.auth();
+</script>
+<script>
+let MB_PRICES={publish:10,renew:10,active_days:28,inactive_days:28};
+async function loadMBPrices(){
+  try{
+    const snap=await db.collection('mb_config').doc('prices').get();
+    if(snap.exists)MB_PRICES={...MB_PRICES,...snap.data()};
+  }catch(e){}
+}
+loadMBPrices();
+</script>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#F5F3EE;--bg-card:#FFFFFF;--bg-alt:#EDEAE3;
+    --text:#1A1917;--text-muted:#7A7770;--text-hint:#B0ADA5;
+    --border:rgba(26,25,23,0.1);--border-mid:rgba(26,25,23,0.18);
+    --accent:#1A1917;--accent-text:#F5F3EE;
+    --green:#2E6E47;--green-bg:#EAF4EE;
+    --red:#A3301D;--red-bg:#FAECE8;
+    --amber:#8A5C0A;--amber-bg:#FDF3E0;
+    --blue:#1A4A8A;--blue-bg:#E8F0FA;
+    --radius:12px;--radius-sm:8px;
+    --shadow:0 1px 3px rgba(0,0,0,0.07),0 4px 12px rgba(0,0,0,0.04);
+  }
+  body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6}
+  header{background:var(--accent);color:var(--accent-text);padding:0 1.5rem;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+  .logo{display:flex;align-items:center;gap:10px;font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;letter-spacing:-0.02em;color:var(--accent-text);text-decoration:none}
+  .header-right{display:flex;gap:8px;align-items:center}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius-sm);border:1.5px solid transparent;font-family:'Manrope',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s;text-decoration:none}
+  .btn-ghost{border-color:rgba(245,243,238,0.25);color:var(--accent-text);background:transparent}
+  .btn-ghost:hover{background:rgba(245,243,238,0.12)}
+  .btn-white{background:var(--accent-text);color:var(--accent);border-color:var(--accent-text)}
+  .btn-white:hover{background:#E8E5DF}
+  .btn-dark{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+  .btn-dark:hover{background:#333}
+  .btn-outline{background:transparent;color:var(--text);border-color:var(--border-mid)}
+  .btn-outline:hover{background:var(--bg-alt)}
+  .btn svg{width:16px;height:16px;flex-shrink:0}
+  .hero{background:var(--accent);padding:1.5rem 1.5rem 1.25rem}
+  .hero-title{font-family:'Unbounded',sans-serif;font-size:12px;font-weight:400;color:rgba(245,243,238,0.5);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.5rem}
+  .search-wrap{display:flex;gap:8px;max-width:680px;position:relative}
+  .search-wrap input{flex:1;padding:11px 16px;border-radius:var(--radius-sm);border:1.5px solid rgba(245,243,238,0.15);background:rgba(245,243,238,0.08);color:var(--accent-text);font-family:'Manrope',sans-serif;font-size:14px;outline:none;transition:border-color 0.15s}
+  .search-wrap input::placeholder{color:rgba(245,243,238,0.35)}
+  .search-wrap input:focus{border-color:rgba(245,243,238,0.5)}
+  .stats-bar{background:var(--bg-card);border-bottom:1px solid var(--border);padding:0.6rem 1.5rem;display:flex;gap:1.5rem;align-items:center;font-size:12px;color:var(--text-muted);overflow-x:auto}
+  .stats-bar span{white-space:nowrap}
+  .stats-bar b{color:var(--text);font-weight:600}
+  .layout{display:flex;min-height:calc(100vh - 60px - 42px - 60px)}
+  .sidebar{width:230px;flex-shrink:0;background:var(--bg-card);border-right:1px solid var(--border);padding:1.25rem 1rem;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto}
+  .filter-group{margin-bottom:1.25rem}
+  .filter-group-title{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-hint);margin-bottom:8px}
+  .chips{display:flex;flex-wrap:wrap;gap:5px}
+  .chip{padding:5px 11px;border-radius:20px;border:1px solid var(--border-mid);font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--text-muted);font-family:'Manrope',sans-serif;transition:all 0.15s;line-height:1}
+  .chip:hover{border-color:var(--text);color:var(--text)}
+  .chip.on{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+  .fsel{width:100%;padding:7px 10px;border:1px solid var(--border-mid);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;font-size:12px;outline:none;cursor:pointer;margin-bottom:6px}
+  .fsel:focus{border-color:var(--accent)}
+  .divider{height:1px;background:var(--border);margin:0 0 1.25rem}
+  .main{flex:1;padding:1.25rem;min-width:0}
+  .main-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;gap:8px}
+  .result-count{font-size:13px;color:var(--text-muted)}
+  .result-count b{color:var(--text)}
+  .sort-sel{padding:7px 12px;border:1px solid var(--border-mid);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-family:'Manrope',sans-serif;font-size:12px;font-weight:500;outline:none;cursor:pointer}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s,border-color 0.15s;position:relative}
+  .card:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--border-mid)}
+  .card-thumb{height:140px;background:var(--bg-alt);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+  .card-thumb img{width:100%;height:100%;object-fit:cover}
+  .card-thumb svg{opacity:0.18;width:64px;height:64px}
+  .badges{position:absolute;top:8px;left:8px;display:flex;gap:4px;flex-wrap:wrap}
+  .badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;line-height:1.4}
+  .badge-new{background:var(--green-bg);color:var(--green)}
+  .badge-used{background:var(--bg-alt);color:var(--text-muted)}
+  .badge-free{background:#F2ECF9;color:#6B3FA0}
+  .fav-btn{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.85);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;backdrop-filter:blur(4px)}
+  .fav-btn:hover{background:white;transform:scale(1.1)}
+  .fav-btn svg{width:15px;height:15px}
+  .fav-btn.active svg{fill:#E24B4A;stroke:#E24B4A}
+  .card-body{padding:11px 13px 12px}
+  .card-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+  .card-sub{font-size:11px;color:var(--text-muted);margin-bottom:9px}
+  .card-price{font-size:17px;font-weight:700;font-family:'Unbounded',sans-serif;letter-spacing:-0.03em}
+  .card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:7px;padding-top:7px;border-top:1px solid var(--border)}
+  .card-city{font-size:11px;color:var(--text-hint);display:flex;align-items:center;gap:3px}
+  .card-city svg{width:10px;height:10px}
+  .empty{grid-column:1/-1;text-align:center;padding:4rem 1rem;color:var(--text-muted)}
+  .empty svg{width:56px;height:56px;opacity:0.15;margin:0 auto 1rem;display:block}
+  .empty p{font-size:15px;font-weight:500;margin-bottom:4px;color:var(--text)}
+  .overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:200}
+  .overlay.open{display:block}
+  .modal{position:fixed;left:0;right:0;bottom:0;width:100%;max-height:90vh;overflow-y:scroll;overflow-x:hidden;background:var(--bg-card);border-radius:16px 16px 0 0;z-index:201;box-shadow:0 -4px 20px rgba(0,0,0,0.3)}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.25rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg-card);z-index:1}
+  .modal-head h2{font-size:16px;font-weight:700}
+  .close-btn{width:30px;height:30px;border-radius:50%;border:none;background:var(--bg-alt);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-muted);transition:all 0.15s;flex-shrink:0}
+  .close-btn:hover{background:var(--border-mid);color:var(--text)}
+  .close-btn svg{width:14px;height:14px}
+  .modal-body{padding:1.25rem}
+  .modal-foot{display:flex;gap:8px;justify-content:flex-end;padding:1rem 1.25rem;border-top:1px solid var(--border);position:sticky;bottom:0;background:var(--bg-card)}
+  .fg{margin-bottom:1rem}
+  label.fl{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:6px}
+  .finput{width:100%;padding:9px 13px;border:1.5px solid var(--border-mid);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;font-size:13px;outline:none;transition:border-color 0.15s}
+  .finput:focus{border-color:var(--accent);background:var(--bg-card)}
+  .finput::placeholder{color:var(--text-hint)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .toggle-row{display:flex;gap:6px;flex-wrap:wrap}
+  .detail-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.25rem}
+  .ds-item{background:var(--bg);padding:10px 12px;border-radius:var(--radius-sm)}
+  .ds-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-hint);margin-bottom:3px}
+  .ds-val{font-size:14px;font-weight:600}
+  .detail-price{font-family:'Unbounded',sans-serif;font-size:26px;font-weight:700;letter-spacing:-0.03em;margin-bottom:4px}
+  .detail-city{font-size:13px;color:var(--text-muted);margin-bottom:1rem;display:flex;align-items:center;gap:4px}
+  .phone-btn{display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--green-bg);color:var(--green);border-radius:var(--radius-sm);font-size:15px;font-weight:700;border:none;cursor:pointer;width:100%;justify-content:center;font-family:'Manrope',sans-serif}
+  .phone-btn svg{width:18px;height:18px}
+  .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--accent);color:var(--accent-text);padding:11px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;opacity:0;transform:translateY(8px);transition:opacity 0.25s,transform 0.25s;z-index:9999;display:flex;align-items:center;gap:8px;pointer-events:none;max-width:280px;box-shadow:0 4px 20px rgba(0,0,0,0.25)}
+  .toast.show{opacity:1;transform:translateY(0)}
+  .toast svg{width:15px;height:15px;flex-shrink:0}
+  footer{background:var(--accent);color:rgba(245,243,238,0.45);padding:1rem 1.5rem;font-size:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  footer a{color:rgba(245,243,238,0.45);text-decoration:none}
+  footer a:hover{color:rgba(245,243,238,0.8)}
+  .photo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px}
+  .photo-thumb{position:relative;aspect-ratio:1;border-radius:var(--radius-sm);overflow:hidden;background:var(--bg-alt)}
+  .photo-thumb img{width:100%;height:100%;object-fit:cover}
+  .photo-del{position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.6);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff}
+  .photo-del svg{width:10px;height:10px}
+  .photo-main-badge{position:absolute;bottom:3px;left:3px;font-size:8px;font-weight:700;background:rgba(0,0,0,0.6);color:#fff;padding:2px 5px;border-radius:3px}
+  @media(max-width:640px){
+    .sidebar{display:none}
+    .hero{padding:1.25rem 1rem}
+    .main{padding:1rem}
+    header{padding:0 1rem}
+    .stats-bar{padding:0.6rem 1rem}
+    .grid{grid-template-columns:1fr 1fr}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="#" class="logo">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+    Меблі та Техніка · Звягель
+  </a>
+  <div class="header-right">
+    <button class="btn btn-ghost" style="font-size:12px;padding:6px 12px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Звягель
+    </button>
+    <button class="btn btn-ghost" id="authBtn" onclick="openModal('loginModal')" style="font-size:12px;padding:6px 12px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Увійти
+    </button>
+    <button class="btn btn-white" onclick="openModal('addModal')" style="font-size:12px;padding:8px 14px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Подати оголошення
+    </button>
+  </div>
+</header>
+
+<div style="background:#c0392b;padding:9px 1rem;text-align:center">
+  <span style="font-size:13px;font-weight:800;color:#fff">🎁 БЕЗКОШТОВНО для продавців меблів та техніки до 31.08.2026! 🔥</span>
+</div>
+
+<div class="hero" style="position:relative">
+  <div class="hero-title">Меблі, побутова техніка та опалення · Звягель</div>
+  <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+    <button class="btn btn-white" id="catAllBtn" onclick="setCat('all')" style="font-size:12px;padding:6px 14px">Всі</button>
+    <button class="btn btn-ghost" id="catFurnBtn" onclick="setCat('furniture')" style="font-size:12px;padding:6px 14px;border-color:rgba(245,243,238,0.25)">🛋️ Меблі</button>
+    <button class="btn btn-ghost" id="catAppBtn" onclick="setCat('appliances')" style="font-size:12px;padding:6px 14px;border-color:rgba(245,243,238,0.25)">🏠 Техніка</button>
+    <button class="btn btn-ghost" id="catHeatBtn" onclick="setCat('heating')" style="font-size:12px;padding:6px 14px;border-color:rgba(245,243,238,0.25)">♨️ Опалення</button>
+  </div>
+  <div class="search-wrap">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(245,243,238,0.5)" stroke-width="2" style="flex-shrink:0;align-self:center"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+    <input type="text" id="searchInput" placeholder="Пошук: диван, холодильник, котел, шафа..." oninput="onSearchInput(this.value)" autocomplete="off">
+    <button class="btn btn-white" onclick="filterCards()">Знайти</button>
+  </div>
+  <div id="autocompleteList" style="display:none;position:absolute;left:1.5rem;right:1.5rem;background:#fff;border-radius:0 0 10px 10px;box-shadow:0 8px 24px rgba(0,0,0,0.25);z-index:9999;max-height:280px;overflow-y:auto;border:1px solid rgba(0,0,0,0.12);border-top:none"></div>
+</div>
+
+<div class="stats-bar">
+  <span id="resultCount">Завантаження...</span>
+  <span>·</span><span id="statSell">— продають</span>
+  <span>·</span><span id="statFree">— безкоштовно</span>
+  <span>·</span><span>Оновлено сьогодні</span>
+</div>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="filter-group">
+      <div class="filter-group-title">Категорія</div>
+      <div class="chips">
+        <button class="chip on" data-f="cat" data-v="all" onclick="setFilter('cat','all',this)">Всі</button>
+        <button class="chip" data-f="cat" data-v="furniture" onclick="setFilter('cat','furniture',this)">🛋️ Меблі</button>
+        <button class="chip" data-f="cat" data-v="appliances" onclick="setFilter('cat','appliances',this)">🏠 Техніка</button>
+        <button class="chip" data-f="cat" data-v="heating" onclick="setFilter('cat','heating',this)">♨️ Опалення</button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="filter-group">
+      <div class="filter-group-title">Тип</div>
+      <div class="chips">
+        <button class="chip on" data-f="type" data-v="all" onclick="setFilter('type','all',this)">Всі</button>
+        <button class="chip" data-f="type" data-v="sell" onclick="setFilter('type','sell',this)">Продаю</button>
+        <button class="chip" data-f="type" data-v="free" onclick="setFilter('type','free',this)">🎁 Безкоштовно</button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="filter-group">
+      <div class="filter-group-title">Стан</div>
+      <div class="chips">
+        <button class="chip on" data-f="cond" data-v="all" onclick="setFilter('cond','all',this)">Всі</button>
+        <button class="chip" data-f="cond" data-v="new" onclick="setFilter('cond','new',this)">Нові</button>
+        <button class="chip" data-f="cond" data-v="used" onclick="setFilter('cond','used',this)">Б/У</button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <button class="btn btn-outline" style="width:100%;justify-content:center;font-size:12px" onclick="resetFilters()">Скинути фільтри</button>
+    <button class="btn btn-dark" style="width:100%;justify-content:center;font-size:13px;margin-top:8px" onclick="filterCards()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><polyline points="20 6 9 17 4 12"/></svg>
+      Застосувати
+    </button>
+  </aside>
+
+  <main class="main">
+    <div class="main-header">
+      <div class="result-count" id="resultCountMain">Знайдено: <b>0</b> оголошень</div>
+      <select class="sort-sel" id="sortSel" onchange="filterCards()">
+        <option value="newest">Новіші спочатку</option>
+        <option value="cheap">Дешевші спочатку</option>
+        <option value="expensive">Дорожчі спочатку</option>
+        <option value="free">Безкоштовні спочатку</option>
+      </select>
+    </div>
+    <div class="grid" id="cardsGrid"></div>
+  </main>
+</div>
+
+<footer>
+  <span>© 2026 Меблі.Звягель — локальний майданчик</span>
+  <div style="display:flex;align-items:center;gap:1rem">
+    <span><a href="#" onclick="openModal('rulesModal');return false">Правила</a> · <a href="#" onclick="openModal('contactsModal');return false">Контакти</a></span>
+    <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px;opacity:0.5" onclick="openAdminModal()">🛡 Адмін</button>
+  </div>
+</footer>
+
+<div class="toast" id="toastEl">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toastMsg"></span>
+</div>
+
+<!-- POPUP BANNER NOVO TAXI -->
+<div id="popupBanner" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99999;align-items:center;justify-content:center;padding:1.5rem">
+  <div style="background:#111111;border-radius:16px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5);position:relative;border:2px solid #C8F135">
+    <button onclick="closePopup()" style="position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;border:none;background:rgba(255,255,255,0.1);cursor:pointer;font-size:16px;color:#fff;display:flex;align-items:center;justify-content:center;z-index:1">✕</button>
+    <div style="background:#111111;padding:1.5rem 1.5rem 1rem;text-align:center;border-bottom:3px solid #C8F135">
+      <svg width="120" height="60" viewBox="0 0 120 60" style="margin:0 auto 10px;display:block">
+        <rect x="10" y="20" width="100" height="32" rx="6" fill="#C8F135"/>
+        <rect x="22" y="10" width="76" height="28" rx="5" fill="#C8F135"/>
+        <rect x="28" y="14" width="26" height="20" rx="3" fill="#111" opacity="0.7"/>
+        <rect x="66" y="14" width="26" height="20" rx="3" fill="#111" opacity="0.7"/>
+        <circle cx="32" cy="54" r="10" fill="#222"/><circle cx="32" cy="54" r="6" fill="#444"/><circle cx="32" cy="54" r="3" fill="#C8F135"/>
+        <circle cx="88" cy="54" r="10" fill="#222"/><circle cx="88" cy="54" r="6" fill="#444"/><circle cx="88" cy="54" r="3" fill="#C8F135"/>
+        <rect x="2" y="30" width="10" height="8" rx="2" fill="#C8F135"/>
+        <rect x="108" y="30" width="10" height="8" rx="2" fill="#ff4444"/>
+        <text x="60" y="30" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="6" fill="#C8F135">TAXI</text>
+      </svg>
+      <div style="font-size:11px;font-weight:800;color:#C8F135;letter-spacing:3px;margin-bottom:4px">ЗВЯГЕЛЬ</div>
+      <div style="font-size:20px;font-weight:900;color:#fff;font-family:Arial Black,sans-serif">Таксі у Звягелі</div>
+      <div style="font-size:12px;color:#888;margin-top:4px">Novo Taxi — швидко та надійно</div>
+    </div>
+    <div style="padding:1rem 1.5rem;background:#111111">
+      <div style="display:flex;justify-content:space-around;margin-bottom:0.75rem">
+        <div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#C8F135;font-family:Arial Black,sans-serif">5хв</div><div style="font-size:9px;color:#666;text-transform:uppercase">Подача</div></div>
+        <div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#C8F135;font-family:Arial Black,sans-serif">24/7</div><div style="font-size:9px;color:#666;text-transform:uppercase">Завжди</div></div>
+        <div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#C8F135;font-family:Arial Black,sans-serif">100%</div><div style="font-size:9px;color:#666;text-transform:uppercase">Місцеві</div></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="closePopup()" style="flex:1;padding:10px;border-radius:8px;border:1px solid #333;background:transparent;font-size:12px;font-weight:600;cursor:pointer;color:#666;font-family:'Manrope',sans-serif">Пізніше</button>
+        <button onclick="window.open('https://novotaxi.online/','_blank');closePopup()" style="flex:2;padding:10px;border-radius:8px;border:none;background:#C8F135;color:#111;font-size:13px;font-weight:900;cursor:pointer;font-family:Arial Black,sans-serif">ЗАМОВИТИ →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="overlay" id="loginModal" onclick="closeOverlay(event,'loginModal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <h2 id="loginTitle">Увійти</h2>
+      <button class="close-btn" onclick="closeModal('loginModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
+    </div>
+    <div id="tabLogin">
+      <div class="modal-body">
+        <div class="fg"><label class="fl">Телефон</label><input class="finput" id="loginPhone" placeholder="+380 67 123 45 67" type="tel"></div>
+        <div class="fg"><label class="fl">Пароль</label><input class="finput" id="loginPass" type="password" placeholder="мін. 6 символів"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-outline" onclick="switchAuthTab('reg')">Реєстрація</button>
+        <button class="btn btn-dark" onclick="doLogin()">Увійти</button>
+      </div>
+    </div>
+    <div id="tabReg" style="display:none">
+      <div class="modal-body">
+        <div class="fg"><label class="fl">Ваше ім'я</label><input class="finput" id="regName" placeholder="Іван"></div>
+        <div class="fg"><label class="fl">Телефон</label><input class="finput" id="regPhone" placeholder="+380 67 123 45 67" type="tel"></div>
+        <div class="fg"><label class="fl">Пароль</label><input class="finput" id="regPass" type="password" placeholder="мін. 6 символів"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-outline" onclick="switchAuthTab('login')">Вже є акаунт</button>
+        <button class="btn btn-dark" onclick="doRegister()">Зареєструватись</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="overlay" id="addModal" onclick="closeOverlay(event,'addModal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <h2>Нове оголошення</h2>
+      <button class="close-btn" onclick="closeModal('addModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
+    </div>
+    <div class="modal-body">
+
+      <div class="fg">
+        <label class="fl">Тип оголошення</label>
+        <div class="toggle-row">
+          <button class="btn btn-dark" id="typeSellBtn" onclick="setAdType('sell')">Продаю</button>
+          <button class="btn btn-outline" id="typeFreeBtn" onclick="setAdType('free')">🎁 Віддам безкоштовно</button>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label class="fl">Категорія</label>
+        <select class="finput" id="adCatSel" onchange="onAdCatChange()">
+          <option value="">— Оберіть категорію —</option>
+          <optgroup label="🛋️ Меблі">
+            <option value="sofa">Диван</option>
+            <option value="armchair">Крісло</option>
+            <option value="bed">Ліжко</option>
+            <option value="wardrobe">Шафа</option>
+            <option value="dresser">Комод</option>
+            <option value="nightstand">Тумба</option>
+            <option value="dining_table">Стіл обідній</option>
+            <option value="desk">Стіл письмовий</option>
+            <option value="chair">Стілець</option>
+            <option value="stool">Табурет</option>
+            <option value="shelf">Стелаж</option>
+            <option value="hallway">Прихожа</option>
+            <option value="kitchen_set">Кухонний гарнітур</option>
+          </optgroup>
+          <optgroup label="🏠 Побутова техніка">
+            <option value="fridge">Холодильник</option>
+            <option value="washing_machine">Пральна машина</option>
+            <option value="dishwasher">Посудомийна машина</option>
+            <option value="oven">Духова шафа</option>
+            <option value="cooktop">Варильна панель</option>
+            <option value="hood">Витяжка</option>
+            <option value="freezer">Морозильна камера</option>
+            <option value="dryer">Сушильна машина</option>
+            <option value="ac">Кондиціонер</option>
+          </optgroup>
+          <optgroup label="♨️ Опалення та водопостачання">
+            <option value="boiler_gas">Котел газовий</option>
+            <option value="boiler_solid">Котел твердопаливний</option>
+            <option value="boiler_electric">Котел електричний</option>
+            <option value="fireplace">Камін</option>
+            <option value="stove">Піч</option>
+            <option value="burzhuika">Буржуйка</option>
+            <option value="radiator">Радіатор опалення</option>
+            <option value="water_heater">Бойлер</option>
+            <option value="pump">Насос циркуляційний</option>
+            <option value="water_heater2">Водонагрівач</option>
+            <option value="convector">Конвектор</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <!-- ПАРАМЕТРИ ПО КАТЕГОРІЇ -->
+      <div id="paramFurn" style="display:none">
+        <div class="row2">
+          <div class="fg">
+            <label class="fl">Матеріал</label>
+            <select class="finput" id="adMaterial">
+              <option value="">— Оберіть —</option>
+              <option>Дерево</option><option>МДФ</option><option>ДСП</option>
+              <option>Метал</option><option>Тканина</option><option>Шкіра</option>
+              <option>Скло</option><option>Пластик</option><option>Комбінований</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">Колір</label>
+            <input class="finput" id="adColor" placeholder="Білий, дуб, венге...">
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl">Розміри (необов'язково)</label>
+          <input class="finput" id="adDimensions" placeholder="Напр. 200x90x80 см (ДxШxВ)">
+        </div>
+      </div>
+
+      <div id="paramAppliance" style="display:none">
+        <div class="row2">
+          <div class="fg">
+            <label class="fl">Марка</label>
+            <input class="finput" id="adBrandAppl" placeholder="Samsung, Bosch, LG...">
+          </div>
+          <div class="fg">
+            <label class="fl">Об'єм / завантаження</label>
+            <input class="finput" id="adVolume" placeholder="Напр. 300л або 7кг">
+          </div>
+        </div>
+      </div>
+
+      <div id="paramHeating" style="display:none">
+        <div class="row2">
+          <div class="fg">
+            <label class="fl">Потужність (кВт)</label>
+            <input class="finput" id="adPower" type="number" placeholder="Напр. 24">
+          </div>
+          <div class="fg">
+            <label class="fl">Об'єм (л) — для бойлерів</label>
+            <input class="finput" id="adHeaterVol" type="number" placeholder="Напр. 80">
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl">Марка</label>
+          <input class="finput" id="adBrandHeat" placeholder="Viessmann, Vaillant, Ariston...">
+        </div>
+      </div>
+
+      <div class="fg">
+        <label class="fl">Назва / опис товару</label>
+        <input class="finput" id="adBrand" placeholder="Коротка назва товару">
+      </div>
+
+      <div class="fg">
+        <label class="fl">Стан</label>
+        <div class="toggle-row">
+          <button class="btn btn-dark" id="condNewBtn" onclick="setAdCond('new')">Нове</button>
+          <button class="btn btn-outline" id="condUsedBtn" onclick="setAdCond('used')">Б/У</button>
+        </div>
+      </div>
+
+      <div class="fg" id="priceBlock">
+        <label class="fl">Ціна (грн)</label>
+        <input class="finput" id="adPrice" type="number" placeholder="5000" min="0">
+      </div>
+
+      <div class="fg">
+        <label class="fl">Фото (до 5 штук)</label>
+        <input type="file" id="adPhotosInput" accept="image/*" multiple style="display:none" onchange="handlePhotos(this)">
+        <div class="photo-grid" id="photoGrid">
+          <button type="button" onclick="document.getElementById('adPhotosInput').click()" style="aspect-ratio:1;border:1.5px dashed var(--border-mid);border-radius:var(--radius-sm);background:var(--bg);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--text-muted);font-size:10px;font-family:sans-serif;padding:4px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Фото
+          </button>
+        </div>
+        <div style="font-size:11px;color:var(--text-hint);margin-top:4px">Перше фото буде головним</div>
+      </div>
+
+      <div class="fg">
+        <label class="fl">Місто</label>
+        <div style="display:flex;align-items:center;gap:8px;padding:9px 13px;background:var(--bg);border-radius:var(--radius-sm);border:1.5px solid var(--border-mid)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" style="width:15px;height:15px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span style="font-size:13px">Звягель</span>
+          <span style="font-size:11px;color:var(--text-hint);margin-left:auto">фіксовано</span>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label class="fl">Опис (необов'язково)</label>
+        <textarea class="finput" id="adDesc" rows="3" placeholder="Додаткова інформація..."></textarea>
+      </div>
+
+      <div id="phoneFromAccount" style="display:none">
+        <div class="fg">
+          <label class="fl">Контактний телефон</label>
+          <div style="display:flex;align-items:center;gap:8px;padding:9px 13px;background:var(--bg);border-radius:var(--radius-sm);border:1.5px solid var(--border-mid)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" style="width:15px;height:15px"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.7 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.61 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.07 6.07l.95-.88a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <span id="phoneDisplay" style="font-size:13px;font-weight:600"></span>
+            <span style="font-size:11px;color:var(--text-hint);margin-left:auto">з акаунту</span>
+          </div>
+        </div>
+      </div>
+      <div id="phoneNotLogged" style="display:none">
+        <div style="padding:12px;background:var(--amber-bg);border-radius:var(--radius-sm);font-size:13px;color:var(--amber)">
+          ⚠️ Для подачі оголошення потрібно <b onclick="closeModal('addModal');openModal('loginModal')" style="cursor:pointer;text-decoration:underline">увійти або зареєструватись</b>
+        </div>
+      </div>
+
+      <div id="balanceBlock" style="display:none;margin-top:1rem;padding:12px 14px;background:var(--bg);border-radius:var(--radius-sm)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:13px;color:var(--text-muted)">Ваш баланс</span>
+          <span style="font-size:15px;font-weight:700;font-family:'Unbounded',sans-serif" id="addBalance">0 грн</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-hint)" id="balanceInfoText">🎁 <b style="color:#c0392b">Безкоштовно до 31.08.2026!</b></div>
+        <button onclick="closeModal('addModal');openModal('topupModal')" style="margin-top:8px;padding:7px 14px;border-radius:var(--radius-sm);border:1px solid var(--border-mid);background:transparent;font-size:12px;font-weight:600;cursor:pointer;font-family:'Manrope',sans-serif;color:var(--text)">+ Поповнити рахунок</button>
+      </div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:15px;height:15px"><polyline points="20 6 9 17 4 12"/></svg>
+        Опублікувати безкоштовно
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="overlay" id="detailModal" onclick="closeOverlay(event,'detailModal')">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:440px">
+    <div class="modal-head">
+      <h2 id="detailTitle">Деталі</h2>
+      <button class="close-btn" onclick="closeModal('detailModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+  </div>
+</div>
+
+<!-- RULES MODAL -->
+<div class="overlay" id="rulesModal" onclick="closeOverlay(event,'rulesModal')">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:520px">
+    <div class="modal-head">
+      <h2>Правила</h2>
+      <button class="close-btn" onclick="closeModal('rulesModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
+    </div>
+    <div class="modal-body" style="font-size:13px;line-height:1.7;color:var(--text-muted)">
+      <p style="margin-bottom:1rem;color:var(--text);font-weight:600">Меблі.Звягель — майданчик купівлі та продажу меблів, побутової техніки та опалювального обладнання.</p>
+      <div style="background:var(--bg);padding:10px 12px;border-radius:var(--radius-sm);font-size:12px;margin-bottom:1rem">
+        <div>• Публікація — <b style="color:var(--text)">БЕЗКОШТОВНО до 31.08.2026</b></div>
+        <div>• Після 28 днів — оголошення стає неактивним</div>
+        <div>• Продовження — 10 грн (ще 28 днів)</div>
+        <div>• "Віддам безкоштовно" — завжди безкоштовно</div>
+        <div>• Через 56 днів — видаляється автоматично</div>
+      </div>
+      <ul style="padding-left:1.25rem;display:flex;flex-direction:column;gap:3px">
+        <li>Лише меблі, техніка та опалювальне обладнання</li>
+        <li>Фото обов'язкове</li>
+        <li>Ціна реальна та актуальна</li>
+        <li>Заборонено дублювати оголошення</li>
+        <li>Реєстрація потрібна тільки для продавців</li>
+      </ul>
+    </div>
+    <div class="modal-foot"><button class="btn btn-dark" onclick="closeModal('rulesModal')">Зрозуміло</button></div>
+  </div>
+</div>
+
+<!-- CONTACTS MODAL -->
+<div class="overlay" id="contactsModal" onclick="closeOverlay(event,'contactsModal')">
+  <div class="modal modal-sm" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <h2>Контакти</h2>
+      <button class="close-btn" onclick="closeModal('contactsModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <a href="mailto:shina.zvyagel@gmail.com" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg);border-radius:var(--radius-sm);text-decoration:none;color:var(--text)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--text-muted)"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <div><div style="font-size:10px;color:var(--text-hint);text-transform:uppercase;margin-bottom:1px">Email</div><div style="font-size:13px;font-weight:600;color:var(--green)">shina.zvyagel@gmail.com</div></div>
+      </a>
+    </div>
+    <div class="modal-foot"><button class="btn btn-dark" onclick="closeModal('contactsModal')">Закрити</button></div>
+  </div>
+</div>
+
+<!-- ADMIN MODAL -->
+<div class="overlay" id="adminModal" onclick="closeOverlay(event,'adminModal')">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:620px">
+    <div class="modal-head" style="background:var(--accent);color:var(--accent-text);border-radius:var(--radius) var(--radius) 0 0">
+      <h2 style="color:var(--accent-text);display:flex;align-items:center;gap:8px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Адмін-панель · Меблі
+      </h2>
+      <button class="close-btn" onclick="closeModal('adminModal')" style="background:rgba(255,255,255,0.1);color:var(--accent-text)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
+    </div>
+    <div style="display:flex;border-bottom:1px solid var(--border);overflow-x:auto">
+      <button id="mbTabUsersBtn" onclick="mbSwitchTab('users')" style="flex:1;padding:10px 4px;font-size:11px;font-weight:600;border:none;background:transparent;cursor:pointer;border-bottom:2px solid var(--accent);color:var(--text);font-family:'Manrope',sans-serif;white-space:nowrap">Клієнти</button>
+      <button id="mbTabTopupBtn" onclick="mbSwitchTab('topup')" style="flex:1;padding:10px 4px;font-size:11px;font-weight:600;border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;color:var(--text-muted);font-family:'Manrope',sans-serif;white-space:nowrap">Заявки</button>
+      <button id="mbTabAdsBtn" onclick="mbSwitchTab('ads')" style="flex:1;padding:10px 4px;font-size:11px;font-weight:600;border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;color:var(--text-muted);font-family:'Manrope',sans-serif;white-space:nowrap">Оголошення</button>
+      <button id="mbTabPricesBtn" onclick="mbSwitchTab('prices')" style="flex:1;padding:10px 4px;font-size:11px;font-weight:600;border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;color:var(--text-muted);font-family:'Manrope',sans-serif;white-space:nowrap">💰 Ціни</button>
+      <button id="mbTabHelpBtn" onclick="mbSwitchTab('help')" style="flex:1;padding:10px 4px;font-size:11px;font-weight:600;border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;color:var(--text-muted);font-family:'Manrope',sans-serif;white-space:nowrap">📖 Мануал</button>
+    </div>
+    <div id="mbAdminTabUsers" class="modal-body" style="padding:1rem;max-height:60vh;overflow-y:auto"><div id="mbUsersList"></div></div>
+    <div id="mbAdminTabTopup" class="modal-body" style="display:none;padding:1rem;max-height:60vh;overflow-y:auto"><div id="mbTopupList"></div></div>
+    <div id="mbAdminTabAds" class="modal-body" style="display:none;padding:1rem;max-height:60vh;overflow-y:auto"><div id="mbAdsList"></div></div>
+    <div id="mbAdminTabPrices" class="modal-body" style="display:none;padding:1rem;max-height:60vh;overflow-y:auto">
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:1rem">Ціни діють одразу після збереження</div>
+      <div id="mbPricesForm"></div>
+      <button onclick="mbSavePrices()" style="width:100%;margin-top:1rem;padding:11px;border-radius:var(--radius-sm);border:none;background:var(--accent);color:var(--accent-text);font-size:14px;font-weight:700;cursor:pointer;font-family:'Manrope',sans-serif">💾 Зберегти ціни</button>
+    </div>
+    <div id="mbAdminTabHelp" class="modal-body" style="display:none;padding:1rem;max-height:60vh;overflow-y:auto;font-size:13px;line-height:1.7;color:var(--text-muted)">
+      <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:1rem">📖 Мануал адміністратора</div>
+      <div style="background:var(--bg);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:10px">
+        <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px">👥 Клієнти</div>
+        <ul style="padding-left:1.1rem;display:flex;flex-direction:column;gap:3px;font-size:12px">
+          <li><b>+ Зарахувати</b> — поповнити баланс після отримання оплати</li>
+          <li><b>🔒 Заблокувати</b> — клієнт не зможе публікувати оголошення</li>
+          <li><b>🔓 Розблокувати</b> — зняти блокування</li>
+        </ul>
+      </div>
+      <div style="background:#EAF4EE;border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:10px">
+        <div style="font-size:12px;font-weight:700;color:#0F6E56;margin-bottom:6px">💳 Як приймати оплату</div>
+        <ol style="padding-left:1.1rem;display:flex;flex-direction:column;gap:4px;color:#0F6E56;font-size:12px">
+          <li>Клієнт обирає суму → натискає "Поповнити"</li>
+          <li>На пошту <b>ckbbuild@gmail.com</b> приходить заявка</li>
+          <li>Ви надсилаєте IBAN в SMS/Viber клієнту</li>
+          <li>Клієнт оплачує → ви заходите в <b>Заявки</b></li>
+          <li>Знаходите заявку → натискаєте <b>"Зарахувати"</b></li>
+        </ol>
+        <div style="margin-top:8px;padding:6px 10px;background:rgba(46,110,71,0.1);border-radius:6px;font-size:11px;color:#3B6D11">⚠️ Не зараховуйте до отримання реальної оплати!</div>
+      </div>
+      <div style="background:var(--amber-bg);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:10px">
+        <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:6px">🔐 Вхід</div>
+        <ul style="padding-left:1.1rem;font-size:12px;color:var(--amber);display:flex;flex-direction:column;gap:3px">
+          <li>Кнопка "🛡 Адмін" в футері</li>
+          <li>Пароль змінюється в коді (ADMIN_PASS_MB)</li>
+        </ul>
+      </div>
+      <div style="font-size:11px;color:var(--text-hint);text-align:center">Меблі.Звягель · 2026</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOPUP MODAL -->
+<div class="overlay" id="topupModal" onclick="closeOverlay(event,'topupModal')">
+  <div class="modal modal-sm" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <h2>Поповнити рахунок</h2>
+      <button class="close-btn" onclick="closeModal('topupModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px">Оберіть суму поповнення:</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem">
+        <button onclick="selectTopup(50,this)" style="padding:12px;border-radius:var(--radius-sm);border:1.5px solid var(--border-mid);background:var(--bg);font-size:15px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif">50 грн</button>
+        <button onclick="selectTopup(100,this)" style="padding:12px;border-radius:var(--radius-sm);border:1.5px solid var(--border-mid);background:var(--bg);font-size:15px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif">100 грн</button>
+        <button onclick="selectTopup(200,this)" style="padding:12px;border-radius:var(--radius-sm);border:1.5px solid var(--border-mid);background:var(--bg);font-size:15px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif">200 грн</button>
+        <button onclick="selectTopup(500,this)" style="padding:12px;border-radius:var(--radius-sm);border:1.5px solid var(--border-mid);background:var(--bg);font-size:15px;font-weight:700;cursor:pointer;font-family:'Unbounded',sans-serif">500 грн</button>
+      </div>
+      <div style="padding:10px 14px;background:var(--amber-bg);border-radius:var(--radius-sm);font-size:12px;color:var(--amber)">
+        💳 Після вибору суми — надішліть заявку. Ми відправимо IBAN в SMS/Viber. Баланс зарахується після оплати.
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('topupModal')">Скасувати</button>
+      <button class="btn btn-dark" onclick="doTopup()">Поповнити →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══ КАТЕГОРІЇ ═══
+const CAT_LABELS={
+  sofa:'Диван',armchair:'Крісло',bed:'Ліжко',wardrobe:'Шафа',
+  dresser:'Комод',nightstand:'Тумба',dining_table:'Стіл обідній',
+  desk:'Стіл письмовий',chair:'Стілець',stool:'Табурет',
+  shelf:'Стелаж',hallway:'Прихожа',kitchen_set:'Кухонний гарнітур',
+  fridge:'Холодильник',washing_machine:'Пральна машина',
+  dishwasher:'Посудомийна машина',oven:'Духова шафа',
+  cooktop:'Варильна панель',hood:'Витяжка',freezer:'Морозильна камера',
+  dryer:'Сушильна машина',ac:'Кондиціонер',
+  boiler_gas:'Котел газовий',boiler_solid:'Котел твердопаливний',
+  boiler_electric:'Котел електричний',fireplace:'Камін',stove:'Піч',
+  burzhuika:'Буржуйка',radiator:'Радіатор',water_heater:'Бойлер',
+  pump:'Насос циркуляційний',water_heater2:'Водонагрівач',convector:'Конвектор'
+};
+
+const FURN_CATS=['sofa','armchair','bed','wardrobe','dresser','nightstand','dining_table','desk','chair','stool','shelf','hallway','kitchen_set'];
+const APPL_CATS=['fridge','washing_machine','dishwasher','oven','cooktop','hood','freezer','dryer','ac'];
+const HEAT_CATS=['boiler_gas','boiler_solid','boiler_electric','fireplace','stove','burzhuika','radiator','water_heater','pump','water_heater2','convector'];
+
+function getCatGroup(cat){
+  if(FURN_CATS.includes(cat))return'furniture';
+  if(APPL_CATS.includes(cat))return'appliances';
+  if(HEAT_CATS.includes(cat))return'heating';
+  return'all';
+}
+
+function onAdCatChange(){
+  const cat=document.getElementById('adCatSel').value;
+  document.getElementById('paramFurn').style.display=FURN_CATS.includes(cat)?'block':'none';
+  document.getElementById('paramAppliance').style.display=APPL_CATS.includes(cat)?'block':'none';
+  document.getElementById('paramHeating').style.display=HEAT_CATS.includes(cat)?'block':'none';
+}
+
+// ═══ FIREBASE AUTH ═══
+let currentUser=null;
+let DB=[];
+let filters={cat:'all',type:'all',cond:'all'};
+let favs=new Set();
+let adPhotos=[];
+let adType='sell';
+let adCond='new';
+
+auth.onAuthStateChanged(async fbUser=>{
+  if(fbUser){
+    const snap=await db.collection('mb_users').doc(fbUser.uid).get();
+    if(snap.exists)currentUser={uid:fbUser.uid,...snap.data()};
+    else currentUser={uid:fbUser.uid,name:'Користувач',phone:'',balance:0};
+    updateHeaderAuth();
+    prepareAddModal();
+  }else{currentUser=null;updateHeaderAuth();}
+});
+
+function updateHeaderAuth(){
+  const btn=document.getElementById('authBtn');
+  if(!btn)return;
+  if(currentUser){
+    btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> ${currentUser.name}`;
+    btn.onclick=()=>{if(confirm('Вийти?')){auth.signOut();toast('Вийшли');}};
+  }else{
+    btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> Увійти`;
+    btn.onclick=()=>openModal('loginModal');
+  }
+}
+
+function switchAuthTab(tab){
+  document.getElementById('tabLogin').style.display=tab==='login'?'block':'none';
+  document.getElementById('tabReg').style.display=tab==='reg'?'block':'none';
+  document.getElementById('loginTitle').textContent=tab==='login'?'Увійти':'Реєстрація';
+}
+
+async function doLogin(){
+  const phone=document.getElementById('loginPhone').value.trim();
+  const pass=document.getElementById('loginPass').value;
+  if(!phone){toast('Введіть телефон');return;}
+  const fakeEmail=phone.replace(/\D/g,'')+`@mb.zvyagel`;
+  try{await auth.signInWithEmailAndPassword(fakeEmail,pass);closeModal('loginModal');toast('Ласкаво просимо!');}
+  catch(e){toast('Невірний телефон або пароль');}
+}
+
+async function doRegister(){
+  const name=document.getElementById('regName').value.trim();
+  const phone=document.getElementById('regPhone').value.trim();
+  const pass=document.getElementById('regPass').value;
+  if(!name){toast('Введіть ім\'я');return;}
+  if(!phone||phone.length<10){toast('Введіть правильний телефон');return;}
+  if(!pass||pass.length<6){toast('Пароль мінімум 6 символів');return;}
+  const fakeEmail=phone.replace(/\D/g,'')+`@mb.zvyagel`;
+  try{
+    const cred=await auth.createUserWithEmailAndPassword(fakeEmail,pass);
+    await db.collection('mb_users').doc(cred.user.uid).set({name,phone,balance:0,blocked:false,createdAt:Date.now()});
+    closeModal('loginModal');
+    toast('Акаунт створено! Ласкаво просимо, '+name+'!');
+  }catch(e){
+    if(e.code==='auth/email-already-in-use')toast('Цей телефон вже зареєстровано');
+    else toast('Помилка: '+e.message);
+  }
+}
+
+function setAdType(t){
+  adType=t;
+  document.getElementById('typeSellBtn').className='btn '+(t==='sell'?'btn-dark':'btn-outline');
+  document.getElementById('typeFreeBtn').className='btn '+(t==='free'?'btn-dark':'btn-outline');
+  document.getElementById('priceBlock').style.display=t==='free'?'none':'block';
+  document.getElementById('submitBtn').innerHTML=t==='free'
+    ?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:15px;height:15px"><polyline points="20 6 9 17 4 12"/></svg> Опублікувати безкоштовно`
+    :`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:15px;height:15px"><polyline points="20 6 9 17 4 12"/></svg> Опублікувати`;
+}
+
+function setAdCond(c){
+  adCond=c;
+  document.getElementById('condNewBtn').className='btn '+(c==='new'?'btn-dark':'btn-outline');
+  document.getElementById('condUsedBtn').className='btn '+(c==='used'?'btn-dark':'btn-outline');
+}
+
+function prepareAddModal(){
+  const fromAcc=document.getElementById('phoneFromAccount');
+  const notLogged=document.getElementById('phoneNotLogged');
+  const balBlock=document.getElementById('balanceBlock');
+  if(currentUser){
+    fromAcc.style.display='flex';
+    notLogged.style.display='none';
+    if(balBlock)balBlock.style.display='block';
+    document.getElementById('phoneDisplay').textContent=currentUser.phone;
+    const balEl=document.getElementById('addBalance');
+    if(balEl)balEl.textContent=(currentUser.balance||0).toLocaleString('uk-UA')+' грн';
+  }else{
+    fromAcc.style.display='none';
+    notLogged.style.display='flex';
+    if(balBlock)balBlock.style.display='none';
+  }
+}
+
+// ═══ ФОТО ═══
+function compressPhoto(file,maxW=800,quality=0.75){
+  return new Promise(res=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const img=new Image();
+      img.onload=()=>{
+        const canvas=document.createElement('canvas');
+        let w=img.width,h=img.height;
+        if(w>maxW){h=Math.round(h*maxW/w);w=maxW;}
+        canvas.width=w;canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        res(canvas.toDataURL('image/jpeg',quality));
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handlePhotos(input){
+  const files=Array.from(input.files);
+  const toAdd=files.slice(0,5-adPhotos.length);
+  for(const f of toAdd){const c=await compressPhoto(f);adPhotos.push(c);renderPhotoGrid();}
+  input.value='';
+}
+
+function renderPhotoGrid(){
+  const grid=document.getElementById('photoGrid');
+  let html=adPhotos.map((src,i)=>`
+    <div class="photo-thumb">
+      <img src="${src}">
+      ${i===0?'<span class="photo-main-badge">ГОЛОВНЕ</span>':''}
+      <button class="photo-del" onclick="removePhoto(${i})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
+    </div>`).join('');
+  if(adPhotos.length<5)html+=`<button type="button" onclick="document.getElementById('adPhotosInput').click()" style="aspect-ratio:1;border:1.5px dashed var(--border-mid);border-radius:var(--radius-sm);background:var(--bg);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--text-muted);font-size:10px;font-family:sans-serif;padding:4px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Додати</button>`;
+  grid.innerHTML=html;
+}
+
+function removePhoto(i){adPhotos.splice(i,1);renderPhotoGrid();}
+
+// ═══ SUBMIT ═══
+async function submitAd(){
+  if(!currentUser){toast('Спочатку увійдіть');openModal('loginModal');return;}
+  const cat=document.getElementById('adCatSel').value;
+  if(!cat){toast('Оберіть категорію');return;}
+  const brand=document.getElementById('adBrand').value.trim();
+  if(!brand){toast('Вкажіть назву товару');return;}
+  if(!adPhotos.length){toast('Додайте хоча б одне фото');return;}
+
+  const price=adType==='free'?0:parseInt(document.getElementById('adPrice').value)||0;
+  const desc=document.getElementById('adDesc').value.trim();
+
+  const params={};
+  if(FURN_CATS.includes(cat)){
+    params.material=document.getElementById('adMaterial').value;
+    params.color=document.getElementById('adColor').value;
+    params.dimensions=document.getElementById('adDimensions').value;
+  }
+  if(APPL_CATS.includes(cat)){
+    params.brandAppl=document.getElementById('adBrandAppl').value;
+    params.volume=document.getElementById('adVolume').value;
+  }
+  if(HEAT_CATS.includes(cat)){
+    params.power=document.getElementById('adPower').value;
+    params.heaterVol=document.getElementById('adHeaterVol').value;
+    params.brandHeat=document.getElementById('adBrandHeat').value;
+  }
+
+  const now=Date.now();
+  try{
+    await db.collection('mb_listings').add({
+      cat,brand,type:adType,cond:adCond,price,desc,params,
+      photos:[...adPhotos],city:'Звягель',
+      phone:currentUser.phone,uid:currentUser.uid,
+      status:'active',date:now,
+      expiresAt:now+28*86400000,
+      deleteAt:now+56*86400000
+    });
+    closeModal('addModal');
+    document.getElementById('adCatSel').value='';
+    document.getElementById('adBrand').value='';
+    document.getElementById('adDesc').value='';
+    document.getElementById('adPrice').value='';
+    adPhotos=[];renderPhotoGrid();onAdCatChange();
+    await loadListings();
+    toast('Оголошення опубліковано!');
+  }catch(e){toast('Помилка: '+e.message);}
+}
+
+// ═══ ЗАВАНТАЖЕННЯ ═══
+async function loadListings(){
+  document.getElementById('resultCount').innerHTML='Завантаження...';
+  try{
+    const snap=await db.collection('mb_listings').orderBy('date','desc').limit(300).get();
+    DB=snap.docs.map(d=>({id:d.id,...d.data()}));
+    const now=Date.now();
+    DB=DB.filter(l=>{
+      if(l.status==='active'&&l.expiresAt&&now>l.expiresAt){
+        db.collection('mb_listings').doc(l.id).update({status:'inactive'}).catch(()=>{});
+        l.status='inactive';
+      }
+      return!(l.deleteAt&&now>l.deleteAt);
+    });
+    filterCards();
+  }catch(e){DB=[];filterCards();}
+  return true;
+}
+
+// ═══ ФІЛЬТРИ ═══
+function setFilter(f,v,btn){
+  filters[f]=v;
+  document.querySelectorAll(`.chip[data-f="${f}"]`).forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  filterCards();
+}
+
+function setCat(c){
+  filters.cat=c;
+  const map={catAllBtn:'all',catFurnBtn:'furniture',catAppBtn:'appliances',catHeatBtn:'heating'};
+  Object.entries(map).forEach(([id,val])=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.className='btn '+(val===c?'btn-white':'btn-ghost');
+    if(val!==c)el.style.borderColor='rgba(245,243,238,0.25)';
+    else el.style.borderColor='';
+  });
+  document.querySelectorAll('.chip[data-f="cat"]').forEach(b=>b.classList.toggle('on',b.dataset.v===c));
+  filterCards();
+}
+
+function filterCards(){
+  const q=document.getElementById('searchInput').value.toLowerCase().trim();
+  let data=DB.filter(l=>{
+    if(l.status!=='active')return false;
+    if(filters.cat!=='all'&&getCatGroup(l.cat)!==filters.cat)return false;
+    if(filters.type!=='all'&&l.type!==filters.type)return false;
+    if(filters.cond!=='all'&&l.cond!==filters.cond)return false;
+    if(q){
+      const s=((l.brand||'')+' '+(CAT_LABELS[l.cat]||'')+' '+(l.desc||'')+' '+(l.params?.brandAppl||'')+' '+(l.params?.brandHeat||'')).toLowerCase();
+      if(!s.includes(q))return false;
+    }
+    return true;
+  });
+  const sort=document.getElementById('sortSel').value;
+  if(sort==='cheap')data.sort((a,b)=>a.price-b.price);
+  else if(sort==='expensive')data.sort((a,b)=>b.price-a.price);
+  else if(sort==='free')data.sort((a,b)=>(a.type==='free'?-1:1)-(b.type==='free'?-1:1));
+  else data.sort((a,b)=>b.date-a.date);
+  renderCards(data);
+  updateStats();
+  saveState();
+}
+
+function resetFilters(){
+  filters={cat:'all',type:'all',cond:'all'};
+  document.getElementById('searchInput').value='';
+  document.getElementById('sortSel').value='newest';
+  document.querySelectorAll('.chip').forEach(b=>b.classList.toggle('on',b.dataset.v==='all'));
+  setCat('all');
+  filterCards();
+}
+
+function updateStats(){
+  const active=DB.filter(l=>l.status==='active');
+  document.getElementById('resultCount').innerHTML=`<b>${active.length}</b> оголошень`;
+  document.getElementById('statSell').innerHTML=`<b>${active.filter(l=>l.type==='sell').length}</b> продають`;
+  document.getElementById('statFree').innerHTML=`<b>${active.filter(l=>l.type==='free').length}</b> безкоштовно`;
+  document.getElementById('resultCountMain').innerHTML=`Знайдено: <b>${document.querySelectorAll('#cardsGrid .card').length}</b> оголошень`;
+}
+
+function timeAgo(ts){
+  const d=Math.floor((Date.now()-ts)/86400000);
+  if(d===0)return'Сьогодні';if(d===1)return'Вчора';
+  if(d<7)return d+'д. тому';return Math.floor(d/7)+'тиж. тому';
+}
+
+function renderCards(data){
+  const g=document.getElementById('cardsGrid');
+  if(!data||!data.length){
+    g.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg><p>Нічого не знайдено</p><span>Спробуйте змінити фільтри</span></div>`;
+    return;
+  }
+  g.innerHTML=data.map(l=>{
+    const isFree=l.type==='free';
+    const isFav=favs.has(l.id);
+    const sub=[];
+    if(l.params?.material)sub.push(l.params.material);
+    if(l.params?.color)sub.push(l.params.color);
+    if(l.params?.brandAppl)sub.push(l.params.brandAppl);
+    if(l.params?.brandHeat)sub.push(l.params.brandHeat);
+    if(l.params?.power)sub.push(l.params.power+' кВт');
+    return`<div class="card" onclick="openDetail('${l.id}')">
+      <div class="card-thumb">
+        ${l.photos&&l.photos[0]?`<img src="${l.photos[0]}" loading="lazy">`:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>`}
+        <div class="badges">
+          ${isFree?'<span class="badge badge-free">🎁 Безкоштовно</span>':''}
+          ${!isFree&&l.cond==='new'?'<span class="badge badge-new">Нове</span>':''}
+          ${!isFree&&l.cond==='used'?'<span class="badge badge-used">Б/У</span>':''}
+        </div>
+        <button class="fav-btn ${isFav?'active':''}" onclick="event.stopPropagation();toggleFav('${l.id}',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+      </div>
+      <div class="card-body">
+        <div class="card-name">${l.brand}</div>
+        <div class="card-sub">${CAT_LABELS[l.cat]||l.cat}${sub.length?' · '+sub.slice(0,2).join(' · '):''}</div>
+        <div class="card-price">${isFree?'Безкоштовно':(l.price?l.price.toLocaleString('uk-UA')+' грн':'Договірна')}</div>
+        <div class="card-footer">
+          <div class="card-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${l.city||'Звягель'}</div>
+          <div style="font-size:11px;color:var(--text-hint)">${timeAgo(l.date)}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleFav(id,btn){
+  if(favs.has(id)){favs.delete(id);btn.classList.remove('active');}
+  else{favs.add(id);btn.classList.add('active');}
+  toast(favs.has(id)?'Додано в обране':'Видалено з обраного');
+}
+
+function openDetail(id){
+  const l=DB.find(x=>x.id===id);
+  if(!l)return;
+  document.getElementById('detailTitle').textContent=l.brand;
+  const isFree=l.type==='free';
+  const photos=l.photos&&l.photos.length?`<div style="display:flex;gap:6px;overflow-x:auto;margin-bottom:1rem">${l.photos.map(s=>`<img src="${s}" style="height:160px;border-radius:8px;flex-shrink:0;object-fit:cover">`).join('')}</div>`:'';
+  const params=[];
+  if(l.params?.material)params.push({l:'Матеріал',v:l.params.material});
+  if(l.params?.color)params.push({l:'Колір',v:l.params.color});
+  if(l.params?.dimensions)params.push({l:'Розміри',v:l.params.dimensions});
+  if(l.params?.brandAppl)params.push({l:'Марка',v:l.params.brandAppl});
+  if(l.params?.volume)params.push({l:'Об\'єм',v:l.params.volume});
+  if(l.params?.brandHeat)params.push({l:'Марка',v:l.params.brandHeat});
+  if(l.params?.power)params.push({l:'Потужність',v:l.params.power+' кВт'});
+  if(l.params?.heaterVol)params.push({l:'Об\'єм',v:l.params.heaterVol+' л'});
+  document.getElementById('detailBody').innerHTML=`
+    ${photos}
+    <div class="detail-price">${isFree?'🎁 Безкоштовно':(l.price?l.price.toLocaleString('uk-UA')+' грн':'Договірна')}</div>
+    <div class="detail-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${l.city||'Звягель'}</div>
+    <div class="detail-stats">
+      <div class="ds-item"><div class="ds-label">Категорія</div><div class="ds-val">${CAT_LABELS[l.cat]||l.cat}</div></div>
+      <div class="ds-item"><div class="ds-label">Стан</div><div class="ds-val">${l.cond==='new'?'Нове':'Б/У'}</div></div>
+      ${params.map(p=>`<div class="ds-item"><div class="ds-label">${p.l}</div><div class="ds-val">${p.v}</div></div>`).join('')}
+    </div>
+    ${l.desc?`<div style="font-size:13px;color:var(--text-muted);background:var(--bg);padding:10px 13px;border-radius:var(--radius-sm);line-height:1.6;margin-bottom:1rem">${l.desc}</div>`:''}
+    <button class="phone-btn" onclick="toast('Телефон: ${l.phone}')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.7 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.61 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.07 6.07l.95-.88a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      ${l.phone}
+    </button>`;
+  openModal('detailModal');
+}
+
+// ═══ АВТОДОПОВНЕННЯ ═══
+let _acTimer;
+function onSearchInput(val){
+  filterCards();
+  clearTimeout(_acTimer);
+  if(val.trim().length<3){hideAC();return;}
+  _acTimer=setTimeout(()=>showAC(val.trim().toLowerCase()),200);
+}
+function showAC(q){
+  const matches=DB.filter(l=>l.status==='active'&&((l.brand||'').toLowerCase().includes(q)||(CAT_LABELS[l.cat]||'').toLowerCase().includes(q)));
+  if(!matches.length){hideAC();return;}
+  const list=document.getElementById('autocompleteList');
+  const seen=new Set();
+  list.innerHTML=matches.slice(0,6).map(l=>{
+    const key=l.brand+l.cat;
+    if(seen.has(key))return'';seen.add(key);
+    return`<div onmousedown="selectAC('${l.brand.replace(/'/g,"\\'")}');openDetail('${l.id}')" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px">
+      <span style="font-size:13px;font-weight:600;color:#1a1917">${l.brand}</span>
+      <span style="font-size:11px;color:#aaa">${CAT_LABELS[l.cat]||''}</span>
+      <span style="font-size:12px;font-weight:700;color:#1a1917;margin-left:auto">${l.type==='free'?'🎁':l.price?l.price.toLocaleString('uk-UA')+' грн':''}</span>
+    </div>`;
+  }).join('');
+  list.style.display='block';
+}
+function selectAC(val){document.getElementById('searchInput').value=val;hideAC();filterCards();}
+function hideAC(){const l=document.getElementById('autocompleteList');if(l)l.style.display='none';}
+document.addEventListener('click',e=>{
+  const inp=document.getElementById('searchInput');
+  const list=document.getElementById('autocompleteList');
+  if(inp&&list&&!inp.contains(e.target)&&!list.contains(e.target))hideAC();
+});
+
+// ═══ МОДАЛКИ ═══
+function openModal(id){document.getElementById(id).classList.add('open');if(id==='addModal')prepareAddModal();}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function closeOverlay(e,id){if(e.target===document.getElementById(id))closeModal(id);}
+
+// ═══ TOAST ═══
+let _tTimer;
+function toast(msg){
+  const el=document.getElementById('toastEl');
+  document.getElementById('toastMsg').textContent=msg;
+  el.classList.add('show');
+  clearTimeout(_tTimer);
+  _tTimer=setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+// ═══ POPUP ═══
+let _popupTimer;
+function closePopup(){
+  document.getElementById('popupBanner').style.display='none';
+  clearTimeout(_popupTimer);
+  _popupTimer=setTimeout(()=>document.getElementById('popupBanner').style.display='flex',5*60*1000);
+}
+setTimeout(()=>document.getElementById('popupBanner').style.display='flex',3000);
+
+// ═══ СТАН ═══
+function saveState(){
+  try{
+    localStorage.setItem('mb_filters',JSON.stringify(filters));
+    localStorage.setItem('mb_search',document.getElementById('searchInput').value||'');
+    localStorage.setItem('mb_sort',document.getElementById('sortSel').value||'newest');
+  }catch(e){}
+}
+window.addEventListener('scroll',()=>{try{localStorage.setItem('mb_scroll',Math.round(window.scrollY));}catch(e){}},{passive:true});
+
+function restoreState(){
+  try{
+    const f=window._savedFilters||{};
+    filters={...filters,...f};
+    const si=document.getElementById('searchInput');
+    if(si&&window._savedSearch)si.value=window._savedSearch;
+    const ss=document.getElementById('sortSel');
+    if(ss&&window._savedSort)ss.value=window._savedSort;
+    document.querySelectorAll('.chip[data-f]').forEach(b=>b.classList.toggle('on',b.dataset.v===filters[b.dataset.f]));
+    setCat(filters.cat||'all');
+  }catch(e){}
+}
+
+function restoreScroll(){
+  const y=window._savedScroll||0;
+  if(y>50)setTimeout(()=>window.scrollTo({top:y,behavior:'instant'}),600);
+}
+
+// ═══ АДМІН ═══
+const ADMIN_PASS_MB='admin123456';
+let _mbTopupAmt=0;
+
+function openAdminModal(){
+  const p=prompt('Пароль:');
+  if(p===ADMIN_PASS_MB){openModal('adminModal');mbSwitchTab('users');}
+  else if(p!==null)toast('Невірний пароль');
+}
+
+function mbSwitchTab(tab){
+  ['users','topup','ads','prices','help'].forEach(t=>{
+    const el=document.getElementById('mbAdminTab'+t.charAt(0).toUpperCase()+t.slice(1));
+    if(el)el.style.display=t===tab?'block':'none';
+    const btn=document.getElementById('mbTab'+t.charAt(0).toUpperCase()+t.slice(1)+'Btn');
+    if(btn){btn.style.borderBottomColor=t===tab?'var(--accent)':'transparent';btn.style.color=t===tab?'var(--text)':'var(--text-muted)';}
+  });
+  if(tab==='users')mbRenderUsers();
+  if(tab==='topup')mbRenderTopup();
+  if(tab==='ads')mbRenderAds();
+  if(tab==='prices')mbRenderPrices();
+}
+
+async function mbRenderUsers(){
+  const el=document.getElementById('mbUsersList');
+  el.innerHTML='<div style="text-align:center;padding:1rem;color:var(--text-muted);font-size:13px">Завантаження...</div>';
+  try{
+    const snap=await db.collection('mb_users').get();
+    const users=snap.docs.map(d=>({uid:d.id,...d.data()}));
+    if(!users.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:var(--text-muted)">Немає клієнтів</div>';return;}
+    el.innerHTML=users.map(u=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;background:var(--bg-card)">
+        <div style="width:38px;height:38px;border-radius:50%;background:var(--bg-alt);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;color:var(--text-muted)">${(u.name||'?').charAt(0).toUpperCase()}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600">${u.name||'—'} ${u.blocked?'<span style="font-size:10px;color:var(--red);font-weight:700">ЗАБЛОКОВАНО</span>':''}</div>
+          <div style="font-size:12px;color:var(--text-muted)">${u.phone||'—'} · ${(u.balance||0)} грн</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
+          <button onclick="mbTopupUser('${u.uid}','${u.name||''}')" style="padding:5px 10px;border-radius:var(--radius-sm);border:1px solid var(--green);background:var(--green-bg);color:var(--green);font-size:11px;font-weight:700;cursor:pointer;font-family:'Manrope',sans-serif;white-space:nowrap">+ Зарахувати</button>
+          <button onclick="mbToggleBlock('${u.uid}',${!!u.blocked})" style="padding:5px 10px;border-radius:var(--radius-sm);border:1px solid ${u.blocked?'var(--amber)':'var(--red)'};background:${u.blocked?'var(--amber-bg)':'var(--red-bg)'};color:${u.blocked?'var(--amber)':'var(--red)'};font-size:11px;font-weight:700;cursor:pointer;font-family:'Manrope',sans-serif;white-space:nowrap">${u.blocked?'🔓 Розблок.':'🔒 Заблок.'}</button>
+        </div>
+      </div>`).join('');
+  }catch(e){el.innerHTML='<div style="color:var(--red);padding:1rem">Помилка: '+e.message+'</div>';}
+}
+
+async function mbTopupUser(uid,name){
+  const amt=prompt('Сума зарахування для '+name+' (грн):');
+  if(!amt||isNaN(+amt)||+amt<=0)return;
+  try{
+    const snap=await db.collection('mb_users').doc(uid).get();
+    const bal=(snap.data().balance||0)+(+amt);
+    await db.collection('mb_users').doc(uid).update({balance:bal});
+    if(currentUser&&currentUser.uid===uid){currentUser.balance=bal;updateHeaderAuth();}
+    mbRenderUsers();toast('Зараховано '+amt+' грн для '+name);
+  }catch(e){toast('Помилка: '+e.message);}
+}
+
+async function mbToggleBlock(uid,isBlocked){
+  if(!isBlocked&&!confirm('Заблокувати?'))return;
+  try{
+    await db.collection('mb_users').doc(uid).update({blocked:!isBlocked});
+    mbRenderUsers();toast(isBlocked?'Розблоковано':'Заблоковано');
+  }catch(e){toast('Помилка: '+e.message);}
+}
+
+async function mbRenderTopup(){
+  const el=document.getElementById('mbTopupList');
+  el.innerHTML='<div style="text-align:center;padding:1rem;color:var(--text-muted);font-size:13px">Завантаження...</div>';
+  try{
+    const snap=await db.collection('mb_topup').orderBy('createdAt','desc').get();
+    const reqs=snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(!reqs.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:var(--text-muted)">Заявок немає</div>';return;}
+    el.innerHTML=reqs.map(r=>`
+      <div style="padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;background:${r.status==='done'?'var(--green-bg)':'var(--bg-card)'}">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div><span style="font-size:13px;font-weight:600">${r.name}</span><span style="font-size:12px;color:var(--text-muted);margin-left:6px">${r.phone}</span></div>
+          <span style="font-size:16px;font-weight:700;font-family:'Unbounded',sans-serif">${r.amt} грн</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:11px;color:var(--text-hint)">${r.date}</span>
+          ${r.status==='done'?'<span style="font-size:11px;color:var(--green);font-weight:700">✓ Зараховано</span>':`<button onclick="mbConfirmTopup('${r.id}','${r.uid}',${r.amt},'${r.name}')" style="padding:5px 12px;border-radius:var(--radius-sm);border:none;background:var(--accent);color:var(--accent-text);font-size:12px;font-weight:700;cursor:pointer;font-family:'Manrope',sans-serif">Зарахувати</button>`}
+        </div>
+      </div>`).join('');
+  }catch(e){el.innerHTML='<div style="color:var(--red);padding:1rem">Помилка: '+e.message+'</div>';}
+}
+
+async function mbConfirmTopup(reqId,uid,amt,name){
+  try{
+    const snap=await db.collection('mb_users').doc(uid).get();
+    const bal=(snap.data().balance||0)+amt;
+    await db.collection('mb_users').doc(uid).update({balance:bal});
+    await db.collection('mb_topup').doc(reqId).update({status:'done'});
+    if(currentUser&&currentUser.uid===uid){currentUser.balance=bal;updateHeaderAuth();}
+    mbRenderTopup();toast('Зараховано '+amt+' грн для '+name);
+  }catch(e){toast('Помилка: '+e.message);}
+}
+
+async function mbRenderAds(){
+  const el=document.getElementById('mbAdsList');
+  el.innerHTML='<div style="text-align:center;padding:1rem;color:var(--text-muted);font-size:13px">Завантаження...</div>';
+  try{
+    const snap=await db.collection('mb_listings').orderBy('date','desc').get();
+    const ads=snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(!ads.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:var(--text-muted)">Оголошень немає</div>';return;}
+    el.innerHTML=ads.map(l=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:6px;background:var(--bg-card)">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.brand}</div>
+          <div style="font-size:11px;color:var(--text-muted)">${CAT_LABELS[l.cat]||l.cat} · ${l.type==='free'?'Безкоштовно':(l.price||0)+' грн'}</div>
+        </div>
+        <button onclick="mbDeleteAd('${l.id}')" style="padding:5px 10px;border-radius:var(--radius-sm);border:1px solid var(--red);background:var(--red-bg);color:var(--red);font-size:11px;font-weight:700;cursor:pointer;font-family:'Manrope',sans-serif;flex-shrink:0">Видалити</button>
+      </div>`).join('');
+  }catch(e){el.innerHTML='<div style="color:var(--red);padding:1rem">Помилка: '+e.message+'</div>';}
+}
+
+async function mbDeleteAd(id){
+  if(!confirm('Видалити?'))return;
+  try{await db.collection('mb_listings').doc(id).delete();await loadListings();mbRenderAds();toast('Видалено');}
+  catch(e){toast('Помилка: '+e.message);}
+}
+
+function mbRenderPrices(){
+  const labels={publish:'Публікація (грн)',renew:'Продовження (грн)',active_days:'Активне (днів)',inactive_days:'Неактивне перед видаленням (днів)'};
+  document.getElementById('mbPricesForm').innerHTML=Object.entries(labels).map(([k,l])=>`
+    <div style="margin-bottom:10px">
+      <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:4px">${l}</label>
+      <input type="number" id="mbprice_${k}" value="${MB_PRICES[k]||0}" min="0" class="finput" style="font-weight:600;font-size:14px">
+    </div>`).join('');
+}
+
+async function mbSavePrices(){
+  const keys=['publish','renew','active_days','inactive_days'];
+  const p={};
+  keys.forEach(k=>{const el=document.getElementById('mbprice_'+k);if(el)p[k]=parseInt(el.value)||0;});
+  try{
+    await db.collection('mb_config').doc('prices').set(p);
+    MB_PRICES={...MB_PRICES,...p};
+    toast('✅ Ціни збережено!');
+  }catch(e){toast('Помилка: '+e.message);}
+}
+
+function selectTopup(n,btn){
+  _mbTopupAmt=n;
+  document.querySelectorAll('#topupModal button[onclick^="selectTopup"]').forEach(b=>{
+    b.style.background=b===btn?'var(--accent)':'var(--bg)';
+    b.style.color=b===btn?'var(--accent-text)':'var(--text)';
+    b.style.borderColor=b===btn?'var(--accent)':'var(--border-mid)';
+  });
+}
+
+async function doTopup(){
+  if(!_mbTopupAmt){toast('Оберіть суму');return;}
+  if(!currentUser){toast('Увійдіть в акаунт');return;}
+  try{
+    await db.collection('mb_topup').add({
+      uid:currentUser.uid,name:currentUser.name,phone:currentUser.phone,
+      amt:_mbTopupAmt,date:new Date().toLocaleString('uk-UA'),
+      status:'pending',createdAt:Date.now()
+    });
+  }catch(e){console.error(e);}
+  const subj=encodeURIComponent('Поповнення Меблі.Звягель');
+  const body=encodeURIComponent("Ім'я: "+currentUser.name+"\nТелефон: "+currentUser.phone+"\nСума: "+_mbTopupAmt+" грн");
+  window.open('mailto:ckbbuild@gmail.com?subject='+subj+'&body='+body);
+  closeModal('topupModal');
+  toast('Заявку відправлено! Очікуйте IBAN в SMS/Viber');
+}
+
+// ═══ ІНІЦІАЛІЗАЦІЯ ═══
+restoreState();
+loadListings().then(()=>restoreScroll());
+updateHeaderAuth();
+document.querySelectorAll('.overlay').forEach(el=>{
+  el.addEventListener('click',function(e){if(e.target===this)closeModal(this.id);});
+});
+</script>
+</body>
+</html>
